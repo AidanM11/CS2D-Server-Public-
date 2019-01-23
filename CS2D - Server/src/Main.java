@@ -14,10 +14,16 @@ public class Main {
 		//Create input handle and give it to gamestate constuctor as arg
 		map = new Map();
 		map.loadMap();
-		gamestate = new GameState(input, map);
+		gamestate = new GameState(map);
 		conn = new ConnectionHandler();
 		inHandle = new InputHandler(conn, gamestate);
 		conn.start();
+		try {
+			Thread.sleep(100);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		inHandle.start();
 	}
 	

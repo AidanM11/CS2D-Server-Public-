@@ -27,10 +27,12 @@ public class ConnectionReceiveHandler extends Thread{
 		boolean[] recKeys = new boolean[8];
 		byte[] bytes;
 		while(true) {
-			bytes = new byte[1024];
+			bytes = new byte[2056];
 			packet = new DatagramPacket(bytes, bytes.length);
 			try {
+				System.out.println("waiting for packet");
 				socket.receive(packet);
+				System.out.println("packet received");
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -47,7 +49,9 @@ public class ConnectionReceiveHandler extends Thread{
 				e.printStackTrace();
 			}
 			this.allKeys.put(packet.getSocketAddress(), recKeys);
+			System.out.println(packet.getSocketAddress());
 			if(addresses.contains(packet.getSocketAddress()) == false) {
+				System.out.println("b");
 				addresses.add(packet.getSocketAddress());
 			}
 		}

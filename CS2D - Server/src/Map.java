@@ -1,7 +1,8 @@
 import java.awt.Graphics;
 import java.io.File;
+import java.io.Serializable;
 
-public class Map {
+public class Map implements Serializable{
 
 	private int mapHeight;
 	private int mapWidth;

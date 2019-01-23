@@ -1,6 +1,7 @@
 import java.awt.*;
+import java.io.Serializable;
 
-public class Block{
+public class Block implements Serializable{
 	
 	private int x, y, blockID;
 	private int blockSize;
