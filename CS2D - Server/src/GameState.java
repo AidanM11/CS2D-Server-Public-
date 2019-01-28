@@ -33,55 +33,59 @@ public class GameState implements Serializable {
 			boolean[] currKeys = keys.get(p.getAddress());
 			int pY = getPlayers().get(i).getY();
 			int pX = getPlayers().get(i).getX();
+			int pMoveSpd = 2;
 			if(currKeys[0] == true) {
 				p1 = new Player(p);
-				p1.setY(pY - 4);
+				p1.setY(pY - pMoveSpd);
 				p1.setPlayerHitbox();
 				if(map.collides(p1) ==  false) {
-					p.setY(pY - 2);
+					p.setY(pY - pMoveSpd);
 				}
 				
 			
 			}
 			if(currKeys[1] == true) {
 				p1 = new Player(p);
-				p1.setX(pX - 4);
+				p1.setX(pX - pMoveSpd);
 				p1.setPlayerHitbox();
 				if(map.collides(p1) ==  false) {
-					p.setX(pX - 2);
+					p.setX(pX - pMoveSpd);
 				}
 				
 			}
 			if(currKeys[2] == true) {
 				p1 = new Player(p);
-				p1.setY(pY + 4);
+				p1.setY(pY + pMoveSpd);
 				p1.setPlayerHitbox();
 				if(map.collides(p1) ==  false) {
-					p.setY(pY + 2);
+					p.setY(pY + pMoveSpd);
 				}
 				
 			}
 			if(currKeys[3] == true) {
 				p1 = new Player(p);
-				p1.setX(pX + 4);
+				p1.setX(pX + pMoveSpd);
 				p1.setPlayerHitbox();
 				if(map.collides(p1) ==  false) {
-					p.setX(pX + 2);
+					p.setX(pX + pMoveSpd);
 				}
 			}
-			int bulletSpeed = 12;
+			p.setVelY(p.getY() - pY);
+			p.setVelX(p.getX() - pX);
+			
+			int bulletSpeed = 6;
 			
 			if(currKeys[4] == true) {
-				bullets.add(new Bullet(p.getX(), p.getY(), 0, -bulletSpeed, 5, p));
+				bullets.add(new Bullet(p.getX(), p.getY(), p.getVelX(), -bulletSpeed, 5, p));
 			}
 			else if(currKeys[5] == true) {
-				bullets.add(new Bullet(p.getX(), p.getY(), 0, bulletSpeed, 5, p));
+				bullets.add(new Bullet(p.getX(), p.getY(), p.getVelX(), bulletSpeed, 5, p));
 			}
 			else if(currKeys[6] == true) {
-				bullets.add(new Bullet(p.getX(), p.getY(), -bulletSpeed, 0, 5, p));
+				bullets.add(new Bullet(p.getX(), p.getY(), -bulletSpeed, p.getVelY(), 5, p));
 			}
 			else if(currKeys[7] == true) {
-				bullets.add(new Bullet(p.getX(), p.getY(), bulletSpeed, 0, 5, p));
+				bullets.add(new Bullet(p.getX(), p.getY(), bulletSpeed, p.getVelY(), 5, p));
 			}
 			
 			p.setPlayerHitbox();

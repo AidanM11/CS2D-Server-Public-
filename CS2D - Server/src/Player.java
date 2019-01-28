@@ -5,7 +5,7 @@ import java.net.SocketAddress;
 
 public class Player implements Serializable{
 
-	private int x, y, size, playerID;
+	private int x, velX, velY, y, size, playerID;
 	private int team;
 	private int health;
 	private SocketAddress address;
@@ -15,6 +15,8 @@ public class Player implements Serializable{
 		super();
 		this.x = x;
 		this.y = y;
+		this.velX = 0;
+		this.velY = 0;
 		this.size = size;
 		this.team = team;
 		this.address = address;
@@ -78,6 +80,19 @@ public class Player implements Serializable{
 	public void setHealth(int health) {
 		this.health = health;
 	}
+	public int getVelX() {
+		return velX;
+	}
+	public void setVelX(int velX) {
+		this.velX = velX;
+	}
+	public int getVelY() {
+		return velY;
+	}
+	public void setVelY(int velY) {
+		this.velY = velY;
+	}
+	
 	
 	
 	
