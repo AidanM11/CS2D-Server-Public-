@@ -1,3 +1,4 @@
+import javax.swing.JOptionPane;
 
 public class Main {
 	
@@ -7,11 +8,18 @@ public class Main {
   private static Map map;
   private static ConnectionHandler conn;
   private static InputHandler inHandle;
+  private static Frame frame;
+  private static String ip;
+  private static String portString;
 
   
 	
 	public static void main(String[] args) {
 		//Create input handle and give it to gamestate constuctor as arg
+		frame = new Frame();
+		frame.init();
+		portString = JOptionPane.showInputDialog(frame.getContentPane(), "Enter Port Number:");
+		ip = JOptionPane.showInputDialog(frame.getContentPane(), "Enter IP Number:");
 		map = new Map();
 		map.loadMap();
 		gamestate = new GameState(map);
@@ -34,6 +42,12 @@ public class Main {
 		return gamestate;
 	}
 	
+	public static String getIp() {
+		return ip;
+	}
+	public static String getPort() {
+		return portString;
+	}
 }
 
 

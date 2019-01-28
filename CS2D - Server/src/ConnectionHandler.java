@@ -7,6 +7,8 @@ import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import javax.swing.JOptionPane;
+
 public class ConnectionHandler extends Thread{
 	private String remoteHost;
 	private int port;
@@ -14,14 +16,22 @@ public class ConnectionHandler extends Thread{
 	private ConnectionSendingHandler connSend;
 	private ConnectionReceiveHandler connRec;
 	private InputHandle input;
+	
+	
+	
 	public ConnectionHandler() {
 		super();
+		
 	}
 	
 	public void run() {
+		
+		
+		
 		try {
+			
 			socket = new DatagramSocket(null);
-			socket.bind(new InetSocketAddress(InetAddress.getByName("10.2.22.73"), 55500));
+			socket.bind(new InetSocketAddress(InetAddress.getByName(Main.getIp()), Integer.parseInt(Main.getPort())));
 			System.out.println(socket.getInetAddress() + " " + socket.getLocalPort());
 		} catch (SocketException e) {
 			// TODO Auto-generated catch block
