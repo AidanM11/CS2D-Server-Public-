@@ -146,15 +146,21 @@ public class GameState implements Serializable {
 		
 	//LOTS OF WORK NEEDED. TEAMS, CONSISTENT SIZE, SPAWNPOINT
 	public void createPlayer(SocketAddress add) {
-		WeaponTemplate  w = new WeaponTemplate(7, 30, 210, 2, 2, "AK-47");
+		WeaponTemplate  w = new WeaponTemplate(7, 30, 210, 2, 4, "AK-47");
 		int team;
+		int spawnX;
+		int spawnY;
 		if(this.getSizeOfTeam(0) > this.getSizeOfTeam(1)) {
 			team = 1;
+			spawnX = 200;
+			spawnY = 200;
 		}
 		else {
 			team = 0;
+			spawnX = 300;
+			spawnY = 500;
 		}
-		Player p = new Player(200,200, 30, team, add);
+		Player p = new Player(spawnX,spawnY, 30, team, add);
 		
 		p.setWeapon(w.createWeapon());
 		this.players.add(p);
@@ -219,6 +225,12 @@ public class GameState implements Serializable {
 				dataOut.writeInt(p.getX());
 				dataOut.writeInt(p.getY());
 				dataOut.writeInt(p.getTeam());
+				if(p.getWeapon().isReloading()) {
+					dataOut.writeInt(1);
+				}
+				else {
+					dataOut.writeInt(0);
+				}
 			}
 			dataOut.writeInt(gamestate.bullets.size());
 			for(int i = 0; i < gamestate.bullets.size(); i++) {
