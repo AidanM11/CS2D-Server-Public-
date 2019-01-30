@@ -73,21 +73,31 @@ public class GameState implements Serializable {
 			p.setVelY(p.getY() - pY);
 			p.setVelX(p.getX() - pX);
 			
-			int bulletSpeed = 6;
-			
-			if(currKeys[4] == true) {
-				bullets.add(new Bullet(p.getX(), p.getY(), p.getVelX(), -bulletSpeed, 5, p));
+			if(p.getWeapon() != null) {
+				if(p.getWeapon().isReloading() == false && p.getWeapon().isFireable() == true) {
+					int bulletSpeed = 6;
+					int damage = p.getWeapon().getDamage();
+					int bSize = p.getWeapon().getBulletSize();
+					
+					if(currKeys[4] == true) {
+						bullets.add(new Bullet(p.getX(), p.getY(), p.getVelX(), -bulletSpeed, bSize, damage, p));
+						p.getWeapon().updateBulletFired();
+					}
+					else if(currKeys[5] == true) {
+						bullets.add(new Bullet(p.getX(), p.getY(), p.getVelX(), bulletSpeed, bSize, damage, p));
+						p.getWeapon().updateBulletFired();
+					}
+					else if(currKeys[6] == true) {
+						bullets.add(new Bullet(p.getX(), p.getY(), -bulletSpeed, p.getVelY(), bSize, damage, p));
+						p.getWeapon().updateBulletFired();
+					}
+					else if(currKeys[7] == true) {
+						bullets.add(new Bullet(p.getX(), p.getY(), bulletSpeed, p.getVelY(), bSize, damage,  p));
+						p.getWeapon().updateBulletFired();
+					}
+				}
 			}
-			else if(currKeys[5] == true) {
-				bullets.add(new Bullet(p.getX(), p.getY(), p.getVelX(), bulletSpeed, 5, p));
-			}
-			else if(currKeys[6] == true) {
-				bullets.add(new Bullet(p.getX(), p.getY(), -bulletSpeed, p.getVelY(), 5, p));
-			}
-			else if(currKeys[7] == true) {
-				bullets.add(new Bullet(p.getX(), p.getY(), bulletSpeed, p.getVelY(), 5, p));
-			}
-			
+			p.getWeapon().update();
 			p.setPlayerHitbox();
 		}
 	
@@ -105,10 +115,10 @@ public class GameState implements Serializable {
 			}
 			for(int pInd = 0; pInd < players.size(); pInd++) {
 				Player p = players.get(pInd);
-				if(p.getPlayerHitbox().intersects(b.getBulletHitbox()) && b.getBulletID().getAddress().equals(p.getAddress())== false) {
+				if(p.getPlayerHitbox().intersects(b.getBulletHitbox()) && b.getBulletID().getTeam() != p.getTeam()) {
 					System.out.println("bullet hit");
 					this.bullets.remove(b);
-					this.playerHit(p);
+					this.playerHit(p, b);
 				}
 			}
 		}
@@ -130,13 +140,24 @@ public class GameState implements Serializable {
 			
 	}	
 	
-	public void playerHit(Player p) {
-		p.setHealth(p.getHealth() - 1);
+	public void playerHit(Player p, Bullet b) {
+		p.setHealth(p.getHealth() - b.getDamage());
 	}
 		
 	//LOTS OF WORK NEEDED. TEAMS, CONSISTENT SIZE, SPAWNPOINT
 	public void createPlayer(SocketAddress add) {
-		this.players.add(new Player(200,200, 30, 0, add));
+		WeaponTemplate  w = new WeaponTemplate(7, 30, 210, 2, 2, "AK-47");
+		int team;
+		if(this.getSizeOfTeam(0) > this.getSizeOfTeam(1)) {
+			team = 1;
+		}
+		else {
+			team = 0;
+		}
+		Player p = new Player(200,200, 30, team, add);
+		
+		p.setWeapon(w.createWeapon());
+		this.players.add(p);
 	}
 	
 	public void addPlayer(Player player) {
@@ -151,6 +172,15 @@ public class GameState implements Serializable {
 	public ArrayList<Player> getPlayers() {
 		return players;
 	}
+	public Player getPlayerByAddress(SocketAddress addr) {
+		for(int i = 0; i < this.players.size(); i++) {
+			if(this.players.get(i).getAddress().equals(addr)) {
+				return this.players.get(i);
+			}
+		}
+		System.out.println("Could not find player with given address");
+		return null;
+	}
 	public Map getMap() {
 		return map;
 	}
@@ -162,6 +192,16 @@ public class GameState implements Serializable {
 		System.out.println(this.players.size());
 	}
 	
+	public int getSizeOfTeam(int team) {
+		int num = 0;
+		for(int i = 0; i < this.players.size(); i++) {
+			Player p = this.players.get(i);
+			if(p.getTeam() == team) {
+				num++;
+			}
+		}
+		return num;
+	}
 	
 	public void setPlayers(ArrayList<Player> players) {
 		this.players = players;
@@ -185,6 +225,7 @@ public class GameState implements Serializable {
 				Bullet b = gamestate.bullets.get(i);
 				dataOut.writeInt(b.getX());
 				dataOut.writeInt(b.getY());
+				dataOut.writeInt(b.getBulletSize());
 			}
 		}
 		catch(Exception e) {
@@ -211,7 +252,8 @@ public class GameState implements Serializable {
 			for(int i = 0; i < bulletsNum; i++) {
 				int x = dataIn.readInt();
 				int y = dataIn.readInt();
-				newState.addBullet(new Bullet(x,y, 0, 0, 4, null));
+				int size = dataIn.readInt();
+				newState.addBullet(new Bullet(x,y, 0, 0, size, 0, null));
 			}
 		}
 		catch(Exception e) {

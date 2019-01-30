@@ -8,6 +8,7 @@ public class Player implements Serializable{
 	private int x, velX, velY, y, size, playerID;
 	private int team;
 	private int health;
+	private Weapon weapon;
 	private SocketAddress address;
 	private Rectangle playerhitbox;
 	
@@ -91,6 +92,12 @@ public class Player implements Serializable{
 	}
 	public void setVelY(int velY) {
 		this.velY = velY;
+	}
+	public Weapon getWeapon() {
+		return weapon;
+	}
+	public void setWeapon(Weapon weapon) {
+		this.weapon = weapon;
 	}
 	
 	
