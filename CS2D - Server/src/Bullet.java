@@ -12,7 +12,7 @@ public class Bullet implements Serializable{
 		this.y = y;
 		this.velX = velX;
 		this.velY = velY;
-		bullethitbox = new Rectangle(x,y,bulletSize,bulletSize);
+		this.bullethitbox = new Rectangle(x,y,bulletSize,bulletSize);
 		this.bulletSize = bulletSize;
 		this.damage = damage;
 		this.bulletID = bulletID;

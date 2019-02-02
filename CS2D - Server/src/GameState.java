@@ -126,8 +126,8 @@ public class GameState implements Serializable {
 		for( int i = 0; i < this.players.size(); i++) {
 			Player p = players.get(i);
 			if(p.getHealth() <= 0) {
-				p.setX(200);
-				p.setY(200);
+				p.setX((int) this.getMap().getSpawnPoints().get(p.getTeam()).getX());
+				p.setY((int) this.getMap().getSpawnPoints().get(p.getTeam()).getY());
 				p.setHealth(10);
 			}
 		}
@@ -152,13 +152,14 @@ public class GameState implements Serializable {
 		int spawnY;
 		if(this.getSizeOfTeam(0) > this.getSizeOfTeam(1)) {
 			team = 1;
-			spawnX = 200;
-			spawnY = 200;
+			spawnX = (int) this.getMap().getSpawnPoints().get(1).getX();
+			spawnY = (int) this.getMap().getSpawnPoints().get(1).getY();
 		}
 		else {
 			team = 0;
-			spawnX = 300;
-			spawnY = 500;
+			spawnX = (int) this.getMap().getSpawnPoints().get(0).getX();
+			spawnY = (int) this.getMap().getSpawnPoints().get(0).getY();
+			
 		}
 		Player p = new Player(spawnX,spawnY, 30, team, add);
 		
@@ -219,6 +220,7 @@ public class GameState implements Serializable {
 		ByteArrayOutputStream baOut = new ByteArrayOutputStream();
 		DataOutputStream dataOut = new DataOutputStream(baOut);
 		try {
+			dataOut.writeInt(0);
 			dataOut.writeInt(gamestate.players.size());
 			for(int i = 0; i < gamestate.players.size(); i++) {
 				Player p = gamestate.players.get(i);
@@ -239,6 +241,29 @@ public class GameState implements Serializable {
 				dataOut.writeInt(b.getY());
 				dataOut.writeInt(b.getBulletSize());
 			}
+		}
+		catch(Exception e) {
+			e.printStackTrace();
+		}
+		return baOut.toByteArray();
+	}
+	
+	
+	
+	public static byte[] serializeMap(GameState gamestate) {
+		ByteArrayOutputStream baOut = new ByteArrayOutputStream();
+		DataOutputStream dataOut = new DataOutputStream(baOut);
+		try {
+			dataOut.writeInt(1);
+			dataOut.writeInt(gamestate.getMap().getMapHeight());
+			dataOut.writeInt(gamestate.getMap().getMapWidth());
+			for(int y = 0; y < gamestate.getMap().getMapHeight(); y++) {
+				for(int x = 0; x < gamestate.getMap().getMapWidth(); x++) {
+					dataOut.writeInt(gamestate.getMap().getBlock()[y][x].getBlockID());
+				}
+			}
+			
+			
 		}
 		catch(Exception e) {
 			e.printStackTrace();
@@ -267,11 +292,34 @@ public class GameState implements Serializable {
 				int size = dataIn.readInt();
 				newState.addBullet(new Bullet(x,y, 0, 0, size, 0, null));
 			}
+			
+			
 		}
 		catch(Exception e) {
 			e.printStackTrace();
 		}
 		return newState;
+	}
+	
+	public static Map deserializeMap(byte[] data) {
+		ByteArrayInputStream baIn = new ByteArrayInputStream(data);
+		DataInputStream dataIn = new DataInputStream(baIn);
+		Map newMap = new Map();
+		try {
+			int height = dataIn.readInt();
+			int width = dataIn.readInt();
+			for(int y = 0; y < height; y++) {
+				for(int x = 0; x < width; x++) {
+					newMap.getBlock()[y][x] = new Block(x, y, newMap.getBlockSize(), dataIn.readInt());
+				}
+			}
+			
+			
+		}
+		catch(Exception e) {
+			e.printStackTrace();
+		}
+		return newMap;
 	}
 	
 	

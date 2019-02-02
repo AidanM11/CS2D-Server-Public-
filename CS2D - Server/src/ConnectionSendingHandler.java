@@ -16,6 +16,7 @@ import java.util.ConcurrentModificationException;
 public class ConnectionSendingHandler extends Thread{
 	private String remoteHost;
 	private int port;
+	private boolean resendMap;
 	private boolean connected;
 	private ObjectOutputStream objOut;
 	private ByteArrayOutputStream baOut;
@@ -27,7 +28,7 @@ public class ConnectionSendingHandler extends Thread{
 	
 	public ConnectionSendingHandler(DatagramSocket socket, ConnectionReceiveHandler connRec) {
 		super();
-		this.addresses = addresses;
+		this.addresses = new ArrayList<SocketAddress>();
 		this.socket = socket;
 		this.connRec = connRec;
 	}
@@ -52,15 +53,24 @@ public class ConnectionSendingHandler extends Thread{
 		
 		
 		while(true) {
+			if(this.addresses.equals(this.connRec.getAddresses()) == false) {
+				this.resendMap = true;
+				System.out.println("resending map");
+			}
 			this.addresses = this.connRec.getAddresses();
 			for(int i = 0; i < addresses.size(); i++) {
 				System.out.println(addresses.size());
 				try {
 					InetSocketAddress addr = (InetSocketAddress) addresses.get(i);
 					data = GameState.serialize(Main.getGameState());
-					System.out.println(data.length);
 					packet = new DatagramPacket(data, data.length, addr.getAddress(), addr.getPort());
 					socket.send(packet);
+					if(this.resendMap) {
+						data = GameState.serializeMap(Main.getGameState());
+						packet = new DatagramPacket(data, data.length, addr.getAddress(), addr.getPort());
+						socket.send(packet);
+						this.resendMap = false;
+					}
 					Thread.sleep(16);
 					
 					
@@ -76,6 +86,11 @@ public class ConnectionSendingHandler extends Thread{
 			}
 		}
 	}
+
+	public void setResendMap(boolean resendMap) {
+		this.resendMap = resendMap;
+	}
+	
 	
 
 }
