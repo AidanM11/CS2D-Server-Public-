@@ -14,6 +14,7 @@ public class ConnectionReceiveHandler extends Thread{
 	private ByteArrayInputStream baIn;
 	private HashMap<SocketAddress, boolean[]> allKeys;
 	private ArrayList<SocketAddress> addresses;
+	private ConnectionSendingHandler connSend;
 
 	public ConnectionReceiveHandler(DatagramSocket socket) {
 		super();
@@ -53,6 +54,7 @@ public class ConnectionReceiveHandler extends Thread{
 			if(addresses.contains(packet.getSocketAddress()) == false) {
 				System.out.println("b");
 				addresses.add(packet.getSocketAddress());
+				connSend.setResendMap(true);
 			}
 		}
 	}
@@ -63,5 +65,11 @@ public class ConnectionReceiveHandler extends Thread{
 	public ArrayList<SocketAddress> getAddresses() {
 		return addresses;
 	}
+
+	public void setConnSend(ConnectionSendingHandler connSend) {
+		this.connSend = connSend;
+	}
+	
+	
 	
 }

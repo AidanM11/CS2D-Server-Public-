@@ -5,7 +5,7 @@ import java.net.SocketAddress;
 
 public class Player implements Serializable{
 
-	private int x, velX, velY, y, size, playerID;
+	private int x, velX, velY, y, size, playerID, rotation;
 	private int team;
 	private int health;
 	private Weapon weapon;
@@ -22,6 +22,7 @@ public class Player implements Serializable{
 		this.team = team;
 		this.address = address;
 		this.health = 15;
+		this.rotation = 0;
 		playerhitbox = new Rectangle(getX(),getY(),size,size);
 		
 	}
@@ -99,6 +100,14 @@ public class Player implements Serializable{
 	public void setWeapon(Weapon weapon) {
 		this.weapon = weapon;
 	}
+	public int getRotation() {
+		return rotation;
+	}
+	public void setRotation(int rotation) {
+		this.rotation = rotation;
+	}
+	
+	
 	
 	
 	

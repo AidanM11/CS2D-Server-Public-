@@ -40,6 +40,7 @@ public class GameState implements Serializable {
 				p1.setPlayerHitbox();
 				if(map.collides(p1) ==  false) {
 					p.setY(pY - pMoveSpd);
+					p.setRotation(0);
 				}
 				
 			
@@ -50,6 +51,7 @@ public class GameState implements Serializable {
 				p1.setPlayerHitbox();
 				if(map.collides(p1) ==  false) {
 					p.setX(pX - pMoveSpd);
+					p.setRotation(1);
 				}
 				
 			}
@@ -59,6 +61,7 @@ public class GameState implements Serializable {
 				p1.setPlayerHitbox();
 				if(map.collides(p1) ==  false) {
 					p.setY(pY + pMoveSpd);
+					p.setRotation(2);
 				}
 				
 			}
@@ -68,6 +71,7 @@ public class GameState implements Serializable {
 				p1.setPlayerHitbox();
 				if(map.collides(p1) ==  false) {
 					p.setX(pX + pMoveSpd);
+					p.setRotation(3);
 				}
 			}
 			p.setVelY(p.getY() - pY);
@@ -82,19 +86,35 @@ public class GameState implements Serializable {
 					if(currKeys[4] == true) {
 						bullets.add(new Bullet(p.getX(), p.getY(), p.getVelX(), -bulletSpeed, bSize, damage, p));
 						p.getWeapon().updateBulletFired();
+						p.setRotation(0);
 					}
 					else if(currKeys[5] == true) {
 						bullets.add(new Bullet(p.getX(), p.getY(), p.getVelX(), bulletSpeed, bSize, damage, p));
 						p.getWeapon().updateBulletFired();
+						p.setRotation(1);
 					}
 					else if(currKeys[6] == true) {
 						bullets.add(new Bullet(p.getX(), p.getY(), -bulletSpeed, p.getVelY(), bSize, damage, p));
 						p.getWeapon().updateBulletFired();
+						p.setRotation(2);
 					}
 					else if(currKeys[7] == true) {
 						bullets.add(new Bullet(p.getX(), p.getY(), bulletSpeed, p.getVelY(), bSize, damage,  p));
 						p.getWeapon().updateBulletFired();
+						p.setRotation(3);
 					}
+				}
+				if(currKeys[4] == true) {
+					p.setRotation(0);
+				}
+				else if(currKeys[5] == true) {
+					p.setRotation(1);
+				}
+				else if(currKeys[6] == true) {
+					p.setRotation(2);
+				}
+				else if(currKeys[7] == true) {
+					p.setRotation(3);
 				}
 			}
 			p.getWeapon().update();
@@ -227,6 +247,7 @@ public class GameState implements Serializable {
 				dataOut.writeInt(p.getX());
 				dataOut.writeInt(p.getY());
 				dataOut.writeInt(p.getTeam());
+				dataOut.writeInt(p.getRotation());
 				if(p.getWeapon().isReloading()) {
 					dataOut.writeInt(1);
 				}

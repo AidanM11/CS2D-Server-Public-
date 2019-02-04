@@ -53,10 +53,6 @@ public class ConnectionSendingHandler extends Thread{
 		
 		
 		while(true) {
-			if(this.addresses.equals(this.connRec.getAddresses()) == false) {
-				this.resendMap = true;
-				System.out.println("resending map");
-			}
 			this.addresses = this.connRec.getAddresses();
 			for(int i = 0; i < addresses.size(); i++) {
 				System.out.println(addresses.size());

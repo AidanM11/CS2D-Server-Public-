@@ -42,6 +42,7 @@ public class ConnectionHandler extends Thread{
 		}
 		connRec = new ConnectionReceiveHandler(socket);
 		connSend = new ConnectionSendingHandler(socket, connRec);
+		connRec.setConnSend(connSend);
 		connRec.start();
 		connSend.start();
 		
