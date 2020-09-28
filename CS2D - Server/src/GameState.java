@@ -11,6 +11,10 @@ public class GameState implements Serializable {
 	private ArrayList<Player> players;
 	private ArrayList<Bullet> bullets;
 	private Map map;
+	private ArrayList<WeaponTemplate> weaponTemplates;
+	private static int startingMoney = 6000;
+	private static int killMoney = 300;
+	private static int roundWinMoney = 600;
 	
 	
 	
@@ -22,6 +26,13 @@ public class GameState implements Serializable {
 		this.players = new ArrayList<Player>();
 		this.bullets = new ArrayList<Bullet>();
 		this.map = map;
+		this.weaponTemplates = new ArrayList<WeaponTemplate>();
+		//int firerate, int maxAmmo, int reloadTime, int damage, int bulletSize, int bulletSpeed, String name, int cost
+		this.weaponTemplates.add(new WeaponTemplate(7, 30, 210, 2, 4, 8, "AK-47", 400));
+		this.weaponTemplates.add(new WeaponTemplate(60, 5, 450, 20, 8, 12, "AWP", 400));
+		this.weaponTemplates.add(new WeaponTemplate(2, 100, 550, 1, 2, 6, "Negev", 400));
+		this.weaponTemplates.add(new WeaponTemplate(35, 6, 210, 10, 12, 2, "Shotgun", 400));
+		this.weaponTemplates.add(new WeaponTemplate(2, 60, 210, 2, 2, 2, "SMG", 400));
 		
 		
 	}
@@ -29,6 +40,9 @@ public class GameState implements Serializable {
 		
 		for(int i = 0; i < this.players.size(); i++) {
 			Player p = getPlayers().get(i);
+			if(p.isDead()) {
+				continue;
+			}
 			Player p1;
 			boolean[] currKeys = keys.get(p.getAddress());
 			int pY = getPlayers().get(i).getY();
@@ -51,7 +65,7 @@ public class GameState implements Serializable {
 				p1.setPlayerHitbox();
 				if(map.collides(p1) ==  false) {
 					p.setX(pX - pMoveSpd);
-					p.setRotation(1);
+					p.setRotation(2);
 				}
 				
 			}
@@ -61,7 +75,7 @@ public class GameState implements Serializable {
 				p1.setPlayerHitbox();
 				if(map.collides(p1) ==  false) {
 					p.setY(pY + pMoveSpd);
-					p.setRotation(2);
+					p.setRotation(1);
 				}
 				
 			}
@@ -77,11 +91,32 @@ public class GameState implements Serializable {
 			p.setVelY(p.getY() - pY);
 			p.setVelX(p.getX() - pX);
 			
+			if(p.getBuyWeapCooldown() <= 0) {
+				for(int k = 0; k < 6; k++) {
+					if(currKeys[k + 8] == true) {
+						ArrayList<WeaponTemplate>weaps = this.weaponTemplates;
+						if(weaps.size()>k) {
+							WeaponTemplate w = weaps.get(k);
+							if(w.getCost() <= p.getMoney()) {
+								p.setMoney(p.getMoney() - w.getCost());
+								p.setWeapon(w.createWeapon());
+								p.setBuyWeapCooldown(100);
+								break;
+							}
+							
+						}
+					}
+				}
+			}
+			else {
+				p.setBuyWeapCooldown(p.getBuyWeapCooldown() - 1);
+			}
+			
 			if(p.getWeapon() != null) {
 				if(p.getWeapon().isReloading() == false && p.getWeapon().isFireable() == true) {
-					int bulletSpeed = 6;
 					int damage = p.getWeapon().getDamage();
 					int bSize = p.getWeapon().getBulletSize();
+					int bulletSpeed = p.getWeapon().getBulletSpeed();
 					
 					if(currKeys[4] == true) {
 						bullets.add(new Bullet(p.getX(), p.getY(), p.getVelX(), -bulletSpeed, bSize, damage, p));
@@ -117,7 +152,9 @@ public class GameState implements Serializable {
 					p.setRotation(3);
 				}
 			}
-			p.getWeapon().update();
+			if(p.getWeapon() != null) {
+				p.getWeapon().update();
+			}
 			p.setPlayerHitbox();
 		}
 	
@@ -135,21 +172,35 @@ public class GameState implements Serializable {
 			}
 			for(int pInd = 0; pInd < players.size(); pInd++) {
 				Player p = players.get(pInd);
+				if(p.isDead()) {
+					continue;
+				}
 				if(p.getPlayerHitbox().intersects(b.getBulletHitbox()) && b.getBulletID().getTeam() != p.getTeam()) {
 					System.out.println("bullet hit");
-					this.bullets.remove(b);
 					this.playerHit(p, b);
+					if(p.getHealth() <= 0) {
+						p.setDead(true);
+						b.getBulletID().setMoney(b.getBulletID().getMoney() + killMoney);
+					}
+					this.bullets.remove(b);
 				}
 			}
 		}
 		
-		for( int i = 0; i < this.players.size(); i++) {
-			Player p = players.get(i);
-			if(p.getHealth() <= 0) {
-				p.setX((int) this.getMap().getSpawnPoints().get(p.getTeam()).getX());
-				p.setY((int) this.getMap().getSpawnPoints().get(p.getTeam()).getY());
-				p.setHealth(10);
+//		for( int i = 0; i < this.players.size(); i++) {
+//			Player p = players.get(i);
+//			if(p.getHealth() <= 0) {
+//				p.setDead(true);
+//			}
+//		}
+		if(teamsAlive() != 2) {
+			for( int i = 0; i < this.players.size(); i++) {
+				Player p = players.get(i);
+				if(p.getTeam() == teamsAlive()) {
+					p.setMoney(p.getMoney() + roundWinMoney);
+				}
 			}
+			respawnAllPlayers();
 		}
 			
 			
@@ -163,10 +214,50 @@ public class GameState implements Serializable {
 	public void playerHit(Player p, Bullet b) {
 		p.setHealth(p.getHealth() - b.getDamage());
 	}
+	public void respawnAllPlayers() {
+		for( int i = 0; i < this.players.size(); i++) {
+			Player p = players.get(i);
+			p.setX((int) this.getMap().getSpawnPoints().get(p.getTeam()).getX());
+			p.setY((int) this.getMap().getSpawnPoints().get(p.getTeam()).getY());
+			p.setHealth(15);
+			p.setDead(false);
+		}
+	}
+	
+	/**
+	 * 
+	 * @return 2 if both teams alive, otherwise number of team still alive
+	 */
+	public int teamsAlive() {
+		if(this.players.size() <= 1) {
+			return 2;
+		}
+		int t0Count = 0;
+		int t1Count = 0;
+		for( int i = 0; i < this.players.size(); i++) {
+			Player p = players.get(i);
+			if(p.isDead() == false) {
+				if(p.getTeam() == 0) {
+					t0Count++;
+				}
+				else {
+					t1Count++;
+				}
+			}
+		}
+		if(t0Count > 0 && t1Count > 0) {
+			return 2;
+		}
+		if(t0Count > 0) {
+			return 0;
+		}
+		else {
+			return 1;
+		}
+	} 
 		
 	//LOTS OF WORK NEEDED. TEAMS, CONSISTENT SIZE, SPAWNPOINT
 	public void createPlayer(SocketAddress add) {
-		WeaponTemplate  w = new WeaponTemplate(7, 30, 210, 2, 4, "AK-47");
 		int team;
 		int spawnX;
 		int spawnY;
@@ -181,9 +272,8 @@ public class GameState implements Serializable {
 			spawnY = (int) this.getMap().getSpawnPoints().get(0).getY();
 			
 		}
-		Player p = new Player(spawnX,spawnY, 30, team, add);
+		Player p = new Player(spawnX,spawnY, 30, team, startingMoney, add);
 		
-		p.setWeapon(w.createWeapon());
 		this.players.add(p);
 	}
 	
@@ -236,7 +326,7 @@ public class GameState implements Serializable {
 	public void setBullets(ArrayList<Bullet> bullets) {
 		this.bullets = bullets;
 	}
-	public static byte[] serialize(GameState gamestate) {
+	public static byte[] serialize(GameState gamestate, SocketAddress recAddr) {
 		ByteArrayOutputStream baOut = new ByteArrayOutputStream();
 		DataOutputStream dataOut = new DataOutputStream(baOut);
 		try {
@@ -248,7 +338,26 @@ public class GameState implements Serializable {
 				dataOut.writeInt(p.getY());
 				dataOut.writeInt(p.getTeam());
 				dataOut.writeInt(p.getRotation());
-				if(p.getWeapon().isReloading()) {
+				dataOut.writeInt(p.getMoney());
+				//Tells client whether this player is the one it controls
+				if(p.getAddress().equals(recAddr)) {
+					dataOut.writeInt(1);
+				}
+				else {
+					dataOut.writeInt(0);
+				}
+				if(p.getWeapon() == null) {
+					dataOut.writeInt(0);
+				}
+				else {
+					if(p.getWeapon().isReloading()) {
+						dataOut.writeInt(1);
+					}
+					else {
+						dataOut.writeInt(0);
+					}
+				}
+				if(p.isDead()) {
 					dataOut.writeInt(1);
 				}
 				else {
@@ -303,7 +412,7 @@ public class GameState implements Serializable {
 				int x = dataIn.readInt();
 				int y = dataIn.readInt();
 				int team = dataIn.readInt();
-				newState.addPlayer(new Player(x,y,30,team,null));
+				newState.addPlayer(new Player(x,y,30,team,0,null));
 				System.out.println(x+ " " + y+ " " + team );
 			}
 			int bulletsNum = dataIn.readInt();

@@ -25,7 +25,7 @@ public class ConnectionReceiveHandler extends Thread{
 	
 	public void run() {
 		DatagramPacket packet;
-		boolean[] recKeys = new boolean[8];
+		boolean[] recKeys = new boolean[14];
 		byte[] bytes;
 		while(true) {
 			bytes = new byte[2056];

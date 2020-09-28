@@ -1,6 +1,6 @@
 
 public class Weapon {
-	private int firerate, currFireTime, maxAmmo, currAmmo, reloadTime, currReloadTime, bulletSize, damage;
+	private int firerate, currFireTime, maxAmmo, currAmmo, reloadTime, currReloadTime, bulletSize, bulletSpeed, damage;
 	private String name;
 	private boolean fireable;
 	private boolean reloading;
@@ -11,13 +11,14 @@ public class Weapon {
 	 * @param damage
 	 * @param name
 	 */
-	public Weapon(int firerate, int maxAmmo, int reloadTime, int damage, int bulletSize, String name) {
+	public Weapon(int firerate, int maxAmmo, int reloadTime, int damage, int bulletSize, int bulletSpeed, String name) {
 		super();
 		this.firerate = firerate;
 		this.maxAmmo = maxAmmo;
 		this.reloadTime = reloadTime;
 		this.damage = damage;
 		this.bulletSize = bulletSize;
+		this.bulletSpeed = bulletSpeed;
 		this.name = name;
 		this.currAmmo = maxAmmo;
 		this.currFireTime = 0;
@@ -111,6 +112,13 @@ public class Weapon {
 	public int getBulletSize() {
 		return bulletSize;
 	}
+
+
+
+	public int getBulletSpeed() {
+		return bulletSpeed;
+	}
+	
 	
 	
 	

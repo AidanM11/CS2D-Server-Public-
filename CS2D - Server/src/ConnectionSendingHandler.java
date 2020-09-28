@@ -53,12 +53,18 @@ public class ConnectionSendingHandler extends Thread{
 		
 		
 		while(true) {
+			//This Thread.sleep is required to make the program work for some reason. Fuck if I know why
+			try {
+				Thread.sleep(1);
+			} catch (InterruptedException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
 			this.addresses = this.connRec.getAddresses();
 			for(int i = 0; i < addresses.size(); i++) {
-				System.out.println(addresses.size());
 				try {
 					InetSocketAddress addr = (InetSocketAddress) addresses.get(i);
-					data = GameState.serialize(Main.getGameState());
+					data = GameState.serialize(Main.getGameState(), addresses.get(i));
 					packet = new DatagramPacket(data, data.length, addr.getAddress(), addr.getPort());
 					socket.send(packet);
 					if(this.resendMap) {
